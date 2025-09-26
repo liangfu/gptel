@@ -608,7 +608,9 @@ REGION is one of apac, eu or us."
 
 (defun gptel-bedrock--curl-version ()
   "Check Curl version required for gptel-bedrock."
-  (let* ((output (shell-command-to-string "curl --version"))
+  (let* ((curl-path (if (stringp gptel-use-curl) gptel-use-curl "curl"))
+         (curl-command (concat curl-path " --version"))
+         (output (shell-command-to-string curl-command))
          (version (and (string-match "^curl \\([0-9.]+\\)" output)
                        (match-string 1 output))))
     version))
