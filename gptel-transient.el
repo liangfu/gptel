@@ -1968,3 +1968,92 @@ whether the action is confirmed/cancelled."
 ;; outline-regexp: "^;; \\*+"
 ;; eval: (outline-minor-mode 1)
 ;; End:
+;; ** Infixes for auto-compact functionality
+
+(transient-define-infix gptel--infix-auto-compact-enabled ()
+  "Toggle automatic context compaction.
+
+When enabled, gptel will automatically manage conversation context
+by removing or summarizing older messages when approaching token limits."
+  :description "Auto-compact context"
+  :class 'gptel--switches
+  :variable 'gptel-auto-compact-enabled
+  :set-value #'gptel--set-with-scope
+  :display-if-true "Yes"
+  :display-if-false "No"
+  :key "-C")
+
+(transient-define-infix gptel--infix-auto-compact-method ()
+  "Method to use for context compaction.
+
+- remove: Remove oldest messages from conversation
+- summarize: Create summaries of older messages  
+- truncate: Truncate individual messages to fit"
+  :description "Compact method"
+  :class 'gptel-lisp-variable
+  :variable 'gptel-auto-compact-method
+  :set-value #'gptel--set-with-scope
+  :display-nil 'remove
+  :key "-M"
+  :prompt "Compaction method: "
+  :reader (lambda (prompt &rest _)
+            (let* ((choices '(("remove" . remove)
+                              ("summarize" . summarize)
+                              ("truncate" . truncate))))
+              (cdr (assoc (completing-read prompt choices nil t) choices)))))
+
+(transient-define-infix gptel--infix-auto-compact-threshold ()
+  "Threshold ratio for triggering auto-compaction.
+
+When estimated token count exceeds this fraction of the model's
+context window, auto-compaction will be triggered."
+  :description "Compact threshold"
+  :class 'gptel-lisp-variable
+  :variable 'gptel-auto-compact-threshold
+  :set-value #'gptel--set-with-scope
+  :display-nil "0.8"
+  :key "-h"
+  :prompt "Compaction threshold (0.0-1.0, default 0.8): "
+  :reader (lambda (prompt &rest _)
+            (let ((val (read-number prompt gptel-auto-compact-threshold)))
+              (and (numberp val) (>= val 0.0) (<= val 1.0) val))))
+
+(transient-define-infix gptel--infix-auto-compact-target ()
+  "Target ratio after compaction.
+
+Auto-compaction will aim to reduce context to this fraction
+of the model's context window."
+  :description "Compact target"
+  :class 'gptel-lisp-variable
+  :variable 'gptel-auto-compact-target-ratio
+  :set-value #'gptel--set-with-scope
+  :display-nil "0.6"
+  :key "-x"
+  :prompt "Compaction target ratio (0.0-1.0, default 0.6): "
+  :reader (lambda (prompt &rest _)
+            (let ((val (read-number prompt gptel-auto-compact-target-ratio)))
+              (and (numberp val) (>= val 0.0) (<= val 1.0) val))))
+
+(transient-define-suffix gptel--suffix-auto-compact-status ()
+  "Show auto-compact status and current context statistics."
+  :transient 'transient--do-stay
+  :key "S"
+  :description "Show context stats"
+  (interactive)
+  (require 'gptel-auto-compact)
+  (gptel-auto-compact-show-stats))
+
+(transient-define-suffix gptel--suffix-auto-compact-clear-cache ()
+  "Clear the token estimation cache."
+  :transient 'transient--do-stay
+  :key "X"
+  :description "Clear token cache"
+  (interactive)
+  (require 'gptel-auto-compact)
+  (gptel-auto-compact-clear-cache))
+   ["Context Management"
+    (gptel--infix-auto-compact-enabled)
+    (gptel--infix-auto-compact-method)
+    (gptel--infix-auto-compact-threshold :if (lambda () gptel-expert-commands))
+    (gptel--infix-auto-compact-target :if (lambda () gptel-expert-commands))
+    (gptel--suffix-auto-compact-status)]
