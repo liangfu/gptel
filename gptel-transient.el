@@ -1961,13 +1961,6 @@ whether the action is confirmed/cancelled."
   (interactive)
   (gptel-context--buffer-setup nil nil gptel-context))
 
-(provide 'gptel-transient)
-;;; gptel-transient.el ends here
-
-;; Local Variables:
-;; outline-regexp: "^;; \\*+"
-;; eval: (outline-minor-mode 1)
-;; End:
 ;; ** Infixes for auto-compact functionality
 
 (transient-define-infix gptel--infix-auto-compact-enabled ()
@@ -2057,3 +2050,11 @@ of the model's context window."
     (gptel--infix-auto-compact-threshold :if (lambda () gptel-expert-commands))
     (gptel--infix-auto-compact-target :if (lambda () gptel-expert-commands))
     (gptel--suffix-auto-compact-status)]
+
+(provide 'gptel-transient)
+;;; gptel-transient.el ends here
+
+;; Local Variables:
+;; outline-regexp: "^;; \\*+"
+;; eval: (outline-minor-mode 1)
+;; End:

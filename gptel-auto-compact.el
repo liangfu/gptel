@@ -261,7 +261,8 @@ Preserves the most recent `gptel-auto-compact-preserve-recent' message pairs."
            (if gptel-auto-compact-enabled "enabled" "disabled")
            gptel-auto-compact-method
            (* gptel-auto-compact-threshold 100)
-           (* gptel-auto-compact-target-ratio 100)))
+           (* gptel-auto-compact-target-ratio 100))
+  nil)
 
 (defun gptel-auto-compact-clear-cache ()
   "Clear the token estimation cache."
