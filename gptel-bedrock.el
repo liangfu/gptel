@@ -506,7 +506,7 @@ Non-nil CLEAR-CACHE will refresh credentials."
              (or (and (not clear-cache) (cdr cell))
                  (setf (cdr cell)
                        (with-temp-buffer
-		           (unless (zerop (apply #'call-process "aws" nil t nil "configure" "export-credentials"
+		           (unless (zerop (apply #'call-process "/usr/local/bin/aws" nil t nil "configure" "export-credentials"
                                      (if profile (list (format "--profile=%s" profile)) nil)))
 		             (user-error "Failed to get AWS credentials from profile %s" (if profile (format "from profile: %s" profile) "from IAM role")))
 		         (json-parse-string (buffer-string)))))))
